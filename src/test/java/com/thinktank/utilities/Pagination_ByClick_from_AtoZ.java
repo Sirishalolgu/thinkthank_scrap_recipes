@@ -108,6 +108,8 @@ public class Pagination_ByClick_from_AtoZ {
 	private static LinkedList<String> getOutputFromRecipe(WebDriver driver, Document doc, List<String> targettedMorbids,
 			List<String> ingredidentList) {
 		LinkedList<String> output = new LinkedList<>();
+		try {
+		
 
 		//String url = "https://www.tarladalal.com/desert-pizza-with-green-and-gold-kiwifruits-35156r";
 		String url = driver.getCurrentUrl();
@@ -132,16 +134,12 @@ public class Pagination_ByClick_from_AtoZ {
 		System.out.println("veg");
 		String result = String.join(", ", ingredidentList);
 		output.add(result);
-		try {
+	
 		Element preptime = doc.selectFirst("time[itemprop=prepTime]");
 		System.out.println(preptime.text());
 		output.add(preptime.text());
 		
-		}
-		catch(Exception e) {
-			System.out.println(e);
-			
-		}
+		
 		
 		Element cookTime = doc.selectFirst("time[itemprop=cookTime]");
 		output.add(cookTime.text());
@@ -167,7 +165,10 @@ public class Pagination_ByClick_from_AtoZ {
 		}
 		// output.add(nutrient.text());
 		output.add(targettedMorbids.toString());
-		output.add(url);
+		output.add(url);}
+		catch(Exception e) {
+			System.out.println(e);
+		}
 		System.out.println(output);
 		return output;
 	}
