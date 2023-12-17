@@ -69,21 +69,12 @@ public class Pagination_ByClick_from_AtoZ {
 				System.out.println("Last Page: " + pagenation_last_page);
 
 				List<WebElement> recipeNames = driver.findElements(By.xpath("//div//span[@class='rcc_recipename']"));
-				List<WebElement> recipeId = driver.findElements(By.xpath("//div//span[contains(text(),'Recipe#')]"));
+			//	List<WebElement> recipeId = driver.findElements(By.xpath("//div//span[contains(text(),'Recipe#')]"));
 
 				for (int i = 0; i < recipeNames.size(); i++) {
 					recipeNames = driver.findElements(By.xpath("//div//span[@class='rcc_recipename']"));
 					WebElement element = recipeNames.get(i);
-				//WebElement id = recipeId.get(i);
-				//String recipeName = element.getText();
-				//	String recipeid = id.getText();
-
-					//String firstPart_recipeid = recipeid.split(" ")[1];
-					
-					
-
-					//allRecipeNames.add(recipeName);
-					//allRecipeIds.add(firstPart_recipeid);
+				
 
 					element.click();
 					
@@ -100,9 +91,7 @@ public class Pagination_ByClick_from_AtoZ {
 							ingredidentList);
 					LinkedList<String> output = getOutputFromRecipe(driver, doc, targettedMorbids, ingredidentList);
 					ExcelUtilities.writeOutput(output);
-		//String page =		"https://www.tarladalal.com/RecipeAtoZ.aspx?beginswith=" + k + "&pageindex="
-				//	+ next_page+1;
-					//driver.get(page);
+		
 					driver.navigate().back();
 					driver.navigate().back();
 
