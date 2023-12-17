@@ -19,9 +19,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 
 import com.thinktank.ingredientsandcomorbidities.IngredientsAndComorbidityInfo;
-
-//import Utilities.ExcelUtility;
-
 public class Pagination_ByClick_from_AtoZ {
 	public static void main(String[] args) throws InterruptedException, IOException {
 
@@ -35,17 +32,13 @@ public class Pagination_ByClick_from_AtoZ {
 
 		driver.findElement(By.xpath("//a[@title='Recipea A to Z']")).click();
 
-		List<WebElement> recipesAtoZ = driver
-				.findElements(By.cssSelector("td[style='white-space:nowrap;']>a:nth-child(1)"));
-//		System.out.println("RecipesAtoZ Size:" + recipesAtoZ.size());
-
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		js.executeScript("window.scrollBy(0, 700)");
 
-		List<String> allRecipeNames = new ArrayList<>();
-		List<String> allRecipeIds = new ArrayList<>();
+		//List<String> allRecipeNames = new ArrayList<>();
+		//List<String> allRecipeIds = new ArrayList<>();
 
-		for (char k = 'A'; k <= 'Z'; k++) {
+	for (char k = 'A'; k <= 'Z'; k++) {
 			int next_page = 1;
 			String paginationSelector = "https://www.tarladalal.com/RecipeAtoZ.aspx?beginswith=" + k + "&pageindex="
 					+ next_page;
@@ -63,6 +56,7 @@ public class Pagination_ByClick_from_AtoZ {
 			String pagenation_last_page_XX = element_1_XX.getText();
 			int last_page_number = Integer.parseInt(pagenation_last_page_XX);
 			System.out.println("Page Data: " + "for alphabet " + k + " " + pagenation_last_page_XX);
+			
 			for (int j = 0; j <= last_page_number - 1; j++) {
 				paginationSelector = "https://www.tarladalal.com/RecipeAtoZ.aspx?beginswith=" + k + "&pageindex="
 						+ next_page;
@@ -75,28 +69,21 @@ public class Pagination_ByClick_from_AtoZ {
 				System.out.println("Last Page: " + pagenation_last_page);
 
 				List<WebElement> recipeNames = driver.findElements(By.xpath("//div//span[@class='rcc_recipename']"));
-				List<WebElement> recipeId = driver.findElements(By.xpath("//div//span[contains(text(),'Recipe#')]"));
+			//	List<WebElement> recipeId = driver.findElements(By.xpath("//div//span[contains(text(),'Recipe#')]"));
 
-//			      System.out.println("Recipe Size:" + recipeNames.size());
 				for (int i = 0; i < recipeNames.size(); i++) {
+					recipeNames = driver.findElements(By.xpath("//div//span[@class='rcc_recipename']"));
 					WebElement element = recipeNames.get(i);
-					WebElement id = recipeId.get(i);
-					String recipeName = element.getText();
-					String recipeid = id.getText();
-//		           System.out.println("Recipe Name: " + recipeName);
-
-					String firstPart_recipeid = recipeid.split(" ")[1];
-
-					allRecipeNames.add(recipeName);
-					allRecipeIds.add(firstPart_recipeid);
+				
 
 					element.click();
-					JavascriptExecutor js1 = (JavascriptExecutor) driver;
+					
 					js.executeScript("window.scrollBy(0, 700)");
 					String currentUrl = driver.getCurrentUrl();
 					IngredientsAndComorbidityInfo.init();
-					Map<String, List<String>> elimatelist = IngredientsAndComorbidityInfo.getMorbidityVsElimateIngridientlistInfo();
-					
+					Map<String, List<String>> elimatelist = IngredientsAndComorbidityInfo
+							.getMorbidityVsElimateIngridientlistInfo();
+
 					Document doc = Jsoup.connect(currentUrl).get();
 					List<String> ingredidentList = new ArrayList<>();
 					exactIngredients(doc, ingredidentList);
@@ -104,34 +91,26 @@ public class Pagination_ByClick_from_AtoZ {
 							ingredidentList);
 					LinkedList<String> output = getOutputFromRecipe(driver, doc, targettedMorbids, ingredidentList);
 					ExcelUtilities.writeOutput(output);
+		
+					driver.navigate().back();
 					driver.navigate().back();
 
-				}
-			}
-		}
-		// ExcelUtility.writeDataToExcel(allRecipeNames, allRecipeIds);
+				}}}
+			
+		
+
 		driver.quit();
 	}
 
+//**********************************************************************************************************//	
+	
+	
 	private static LinkedList<String> getOutputFromRecipe(WebDriver driver, Document doc, List<String> targettedMorbids,
 			List<String> ingredidentList) {
 		LinkedList<String> output = new LinkedList<>();
-		// String url = driver.getCurrentUrl();
-		String url = "https://www.tarladalal.com/desert-pizza-with-green-and-gold-kiwifruits-35156r";
-		// System.out.println(url);
 
-//	Recipe ID
-//	Recipe Name
-//	Recipe Category(Breakfast/lunch/snack/dinner)
-//	Food Category(Veg/non-veg/vegan/Jain)
-//	Ingredients
-//	Preparation Time
-//	Cooking Time
-//	Preparation method
-//	Nutrient values
-//	Targetted morbid conditions (Diabeties/Hypertension/Hypothyroidism)
-//	Recipe URL
-
+		//String url = "https://www.tarladalal.com/desert-pizza-with-green-and-gold-kiwifruits-35156r";
+		String url = driver.getCurrentUrl();
 		System.out.println("id:" + RecipeId.getRecipeID(url));
 		output.add(RecipeId.getRecipeID(url));
 
@@ -153,9 +132,17 @@ public class Pagination_ByClick_from_AtoZ {
 		System.out.println("veg");
 		String result = String.join(", ", ingredidentList);
 		output.add(result);
+		try {
 		Element preptime = doc.selectFirst("time[itemprop=prepTime]");
 		System.out.println(preptime.text());
 		output.add(preptime.text());
+		
+		}
+		catch(Exception e) {
+			System.out.println(e);
+			
+		}
+		
 		Element cookTime = doc.selectFirst("time[itemprop=cookTime]");
 		output.add(cookTime.text());
 		System.out.println(cookTime.text());
