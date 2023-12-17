@@ -143,9 +143,17 @@ public class Pagination_ByClick_from_AtoZ {
 		System.out.println("veg");
 		String result = String.join(", ", ingredidentList);
 		output.add(result);
+		try {
 		Element preptime = doc.selectFirst("time[itemprop=prepTime]");
 		System.out.println(preptime.text());
 		output.add(preptime.text());
+		
+		}
+		catch(Exception e) {
+			System.out.println(e);
+			
+		}
+		
 		Element cookTime = doc.selectFirst("time[itemprop=cookTime]");
 		output.add(cookTime.text());
 		System.out.println(cookTime.text());
