@@ -75,7 +75,7 @@ public class Pagination_ByClick_from_AtoZ {
 					recipeNames = driver.findElements(By.xpath("//div//span[@class='rcc_recipename']"));
 					WebElement element = recipeNames.get(i);
 				
-
+                    String catchUrl=driver.getCurrentUrl();
 					element.click();
 					
 					js.executeScript("window.scrollBy(0, 700)");
@@ -92,8 +92,8 @@ public class Pagination_ByClick_from_AtoZ {
 					LinkedList<String> output = getOutputFromRecipe(driver, doc, targettedMorbids, ingredidentList);
 					ExcelUtilities.writeOutput(output);
 		
-					driver.navigate().back();
-					driver.navigate().back();
+					driver.navigate().to(catchUrl);
+					//driver.navigate().back();
 
 				}}}
 			
