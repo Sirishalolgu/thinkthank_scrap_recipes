@@ -21,19 +21,19 @@ public class Filter {
     }
 
     public static void main(String[] args) {
-        stripword("(maida)");
-        stripword("powdered sugar");
-        stripword("black salt");
-        stripword("grated mozzarella cheese");
-        stripword("sea salt");
-        stripword("grated processed cheese");
-        stripword("chopped spinach");
-        stripword("diced mozzarella cheese");
-        stripword("icing sugar");
-        stripword("sweet and sour sauce");
-        stripword("red chilli sauce");
-        stripword("chilli garlic sauce");
-        stripword("baby corn");
-        stripword("coffee powder");
+//        stripword("(maida)");
+//        stripword("powdered sugar");
+//        stripword("black salt");
+//        stripword("grated mozzarella cheese");
+//        stripword("sea salt");
+//        stripword("grated processed cheese");
+//        stripword("chopped spinach");
+//        stripword("diced mozzarella cheese");
+//        stripword("icing sugar");
+//        stripword("sweet and sour sauce");
+//        stripword("red chilli sauce");
+//        stripword("chilli garlic sauce");
+//        stripword("baby corn");
+//        stripword("coffee powder");
     }
 }
