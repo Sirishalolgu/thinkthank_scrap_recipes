@@ -143,6 +143,8 @@ public class Diabetes {
 			for (Element ingredientname : ingredients) {
 				String newIngredient = Filter.stripword(ingredientname.text());
 				ingredidentList.add(newIngredient);
+				
+				//driver.navigate().to("https://www.tarladalal.com/aam-chana-achar-rajasthani-pickle-3904r");
 			}
 		}
 	}

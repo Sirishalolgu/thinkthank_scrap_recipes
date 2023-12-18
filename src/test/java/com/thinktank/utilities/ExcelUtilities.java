@@ -188,12 +188,17 @@ public class ExcelUtilities {
 		int columnCount;
 		int emptyCell;
 		for (String data : output) {
+			
 			Row row = sheet.getRow(rowcount++);
 			System.out.println("Row:" + rowcount);
 			//row.getCell(2).setCellValue(data);
 			emptyCell = getEmptyCell(row);
+			Cell cell = row.getCell(emptyCell);
+			if(cell == null || cell.getCellType() == CellType.BLANK) {
+				cell = row.createCell(emptyCell, CellType.STRING);
+			}
 			System.out.println(emptyCell);
-			row.getCell(emptyCell).setCellValue(data);
+			cell.setCellValue(data);
 			System.out.println(data);
 		}
 
@@ -217,12 +222,16 @@ public class ExcelUtilities {
 	private static int getEmptyCell(Row row) {
 		int firstEmptyCellIndex = -1;
 
-		for (int i = 2; i < row.getLastCellNum(); i++) {
+		for (int i = 2; i <= row.getLastCellNum(); i++) {
 		    Cell cell = row.getCell(i);
 		    if (cell == null || cell.getCellType() == CellType.BLANK) {
 		        firstEmptyCellIndex = i; // Found an empty cell
 		        break;
 		    }
+		}
+		if(firstEmptyCellIndex == -1) {
+			firstEmptyCellIndex = row.getLastCellNum();
+			System.out.println("getLastCellNum -" + row.getLastCellNum());
 		}
 		return firstEmptyCellIndex;
 	}
