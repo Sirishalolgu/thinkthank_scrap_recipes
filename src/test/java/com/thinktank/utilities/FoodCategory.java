@@ -1,4 +1,4 @@
-package com.thinktank.ingredientsandcomorbidities;
+package com.thinktank.utilities;
 
 import java.util.ArrayList;
 import java.util.List;

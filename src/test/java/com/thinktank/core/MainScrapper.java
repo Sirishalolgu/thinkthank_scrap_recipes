@@ -22,10 +22,11 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import com.thinktank.ingredientsandcomorbidities.FoodCategory;
 import com.thinktank.ingredientsandcomorbidities.IngredientsAndComorbidityInfo;
+import com.thinktank.utilities.Allergy;
 import com.thinktank.utilities.ExcelUtilities;
 import com.thinktank.utilities.Filter;
+import com.thinktank.utilities.FoodCategory;
 import com.thinktank.utilities.RecipeId;
 
 
@@ -123,21 +124,29 @@ public class MainScrapper {
 			// String url =
 			// "https://www.tarladalal.com/desert-pizza-with-green-and-gold-kiwifruits-35156r";
 			String url = driver.getCurrentUrl();
-			System.out.println("id:" + RecipeId.getRecipeID(url));
+		//	System.out.println("id:" + RecipeId.getRecipeID(url));
 			output.add(RecipeId.getRecipeID(url));
 
 			Element name = doc.getElementById("ctl00_cntrightpanel_lblrecipeNameH2");
 			output.add(name.text());
-			System.out.println(name.text());
+		//	System.out.println(name.text());
+			List<Integer> rowsToUpdate = Allergy.getAllergy( ingredidentList);
+			ExcelUtilities.writeAllergyOutput(name.text(), rowsToUpdate);
 
 			Elements Recipecategory = doc.select("a[itemprop=recipeCategory]");
-			if (!Recipecategory.isEmpty()) {
-				Element aElement = Recipecategory.first();
-				output.add(aElement.text());
-				System.out.println("Found <a> element with name: " + aElement.text());
-			} else {
-				System.out.println("No <a> element with name found under the <span> with href");
+			List<String> recipeCategorylist=new  ArrayList<>();
+//			if (!Recipecategory.isEmpty()) {
+//				Element aElement = Recipecategory.first();
+//				output.add(aElement.text());
+//				System.out.println("Found <a> element with name: " + aElement.text());
+//			} else {
+//				System.out.println("No <a> element with name found under the <span> with href");
+//			}
+			
+			for(Element e: Recipecategory) {
+				recipeCategorylist.add(e.text());
 			}
+			output.add(recipeCategorylist.toString());
 
 			// System.out.println(category.text());
 			List<String> foodCategory = FoodCategory.categorizeTheRecipe(categoryinfo, ingredidentList);
@@ -149,7 +158,7 @@ public class MainScrapper {
 
 			output.add(foodCategoryList.toString());
 
-			System.out.println("foodCategory: " + foodCategory);
+		//	System.out.println("foodCategory: " + foodCategory);
 			// String foodCategory = compareIngredientsWithMorbidExcludedList(categoryinfo,
 			// ingredidentList);
 
@@ -159,7 +168,7 @@ public class MainScrapper {
 			output.add(result);
 
 			Element preptime = doc.selectFirst("time[itemprop=prepTime]");
-			System.out.println(preptime.text());
+			//System.out.println(preptime.text());
 			output.add(preptime.text());
 
 			Element cookTime = doc.selectFirst("time[itemprop=cookTime]");
@@ -210,6 +219,7 @@ public class MainScrapper {
 
 			output.add(targettedMorbids.toString());
 			output.add(url);
+			
 		} catch (Exception e) {
 			System.out.println(e);
 		}
@@ -219,9 +229,13 @@ public class MainScrapper {
 
 	private static List<String> compareIngredientsWithMorbidExcludedList(Map<String, List<String>> elimatelist,
 			List<String> ingredidentList) {
+		System.out.println("ingredidentList - "+ ingredidentList);
+		
 		List<String> targettedMorbids = new ArrayList<>();
 		for (Map.Entry<String, List<String>> entry : elimatelist.entrySet()) {
 			List<String> eliminatedList = entry.getValue();
+			System.out.println("morbid  - " + entry.getKey());
+			System.out.println("elimintae list - " + eliminatedList);
 			if (CollectionUtils.containsAny(ingredidentList, eliminatedList)) {
 				System.out.println("ingredients part of eliminated list");
 			} else {
@@ -241,6 +255,8 @@ public class MainScrapper {
 				ingredidentList.add(newIngredient);
 			}
 		}
+		
+		System.out.println(ingredidentList);
 		return ingredidentList;
 	}
 
