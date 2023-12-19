@@ -23,8 +23,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class ExcelUtilities {
 
-	private static final String RECIPE_DATA_EXPECTED_OUTPUT_TO_LOOK_LIKE = "Recipe-Data (Expected output fo";
-	static final String FilterAllergiesbonuspts = "Filter-1(Allergies - bonus pts)";
+	public static final String RECIPE_DATA_EXPECTED_OUTPUT_TO_LOOK_LIKE = "Recipe-Data (Expected output fo";
+	public static final String FilterAllergiesbonuspts = "Filter-1(Allergies - bonus pts)";
+	public static final String Recipe_Data_Expected_OUTPUTToaddlist="Sheet2";
 	static String FILE_PATH = System.getProperty("user.dir")
 			+ "/src/test/resources/TestData/IngredientsAndComorbidities-ScrapperHackathon.xlsx";
 	static final String DIABETES_HYPOTHYROIDISM_HYPERTE = "Diabetes-Hypothyroidism-Hyperte";
@@ -44,10 +45,13 @@ public class ExcelUtilities {
 		}
 		return null;
 	}
-
-	public static void writeOutput(LinkedList<String> output) {
+       
+	//Recipe_Data_Expected_OUTPUTToaddlist
+	//RECIPE_DATA_EXPECTED_OUTPUT_TO_LOOK_LIKE
+	
+	public static void writeOutput(LinkedList<String> output,String sheetname) {
 		Workbook workbook = readExcel(FILE_PATH_WRITE);
-		Sheet sheet = workbook.getSheet(RECIPE_DATA_EXPECTED_OUTPUT_TO_LOOK_LIKE);
+		Sheet sheet = workbook.getSheet(sheetname);
 		int rowcount = 2;
 		// Iterator<Cell> cellIterator = row.cellIterator();
 		int columnCount;

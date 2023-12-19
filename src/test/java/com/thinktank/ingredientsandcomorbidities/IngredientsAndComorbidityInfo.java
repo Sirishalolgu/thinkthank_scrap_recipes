@@ -12,6 +12,7 @@ public class IngredientsAndComorbidityInfo {
 
 	static Map<String, List<String>> morbidityVsAddIngridientlistInfo = new HashMap<>();
 	static Map<String, List<String>> categoryVsElimateIngridientlistInfo = new HashMap<>();
+	
 
 	public static void init() {
 		morbidityVsElimateIngridientlistInfo = ExcelUtilities.readElimatelist();

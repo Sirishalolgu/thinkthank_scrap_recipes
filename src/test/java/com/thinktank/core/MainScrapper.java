@@ -1,14 +1,14 @@
 package com.thinktank.core;
 
 import java.io.IOException;
-
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -17,10 +17,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
 
 import com.thinktank.ingredientsandcomorbidities.IngredientsAndComorbidityInfo;
 import com.thinktank.utilities.Allergy;
@@ -31,6 +27,8 @@ import com.thinktank.utilities.RecipeId;
 
 
 public class MainScrapper {
+	
+	private static Logger logger = LogManager.getLogger();
 
 	public static void scrapingrecipes(WebDriver driver) {
 
@@ -96,9 +94,15 @@ public class MainScrapper {
 						List<String> ingredidentList = exactIngredients(doc);
 						List<String> targettedMorbids = compareIngredientsWithMorbidExcludedList(elimatelist,
 								ingredidentList);
-
+						List<String> filteredTargettedMorbids =  filtermorbidsUsingToadd(targettedMorbids, ingredidentList);
 						LinkedList<String> output = getOutputFromRecipe(driver, doc, targettedMorbids, ingredidentList);
-						ExcelUtilities.writeOutput(output);
+						ExcelUtilities.writeOutput(output,ExcelUtilities.RECIPE_DATA_EXPECTED_OUTPUT_TO_LOOK_LIKE);
+						int outputsize = output.size();
+						if(filteredTargettedMorbids != null && !filteredTargettedMorbids.isEmpty()) {
+							output.set(outputsize - 2, filteredTargettedMorbids.toString());
+							ExcelUtilities.writeOutput(output,ExcelUtilities.Recipe_Data_Expected_OUTPUTToaddlist);
+						}
+						
 
 						driver.navigate().to(catchUrl);
 					} catch (IOException e) {
@@ -113,6 +117,18 @@ public class MainScrapper {
 	}
 
 //**********************************************************************************************************//	
+
+	private static List<String> filtermorbidsUsingToadd(List<String> targettedMorbids, List<String> ingredidentList) {
+		List<String> filteredMorbidList = new ArrayList<>();
+		for(String morbid : targettedMorbids) {
+			List<String> toAddList = IngredientsAndComorbidityInfo.getMorbidityVsAddIngridientlistInfo().get(morbid);
+			if (CollectionUtils.containsAny(ingredidentList, toAddList)) {
+				System.out.println("ingredients part of To Add list");
+				filteredMorbidList.add(morbid);
+			} 
+		}
+		return filteredMorbidList;
+	}
 
 	private static LinkedList<String> getOutputFromRecipe(WebDriver driver, Document doc, List<String> targettedMorbids,
 			List<String> ingredidentList) {
@@ -240,6 +256,7 @@ public class MainScrapper {
 				System.out.println("ingredients part of eliminated list");
 			} else {
 				targettedMorbids.add(entry.getKey());
+				
 			}
 		}
 		return targettedMorbids;

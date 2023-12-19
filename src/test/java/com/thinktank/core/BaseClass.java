@@ -13,6 +13,8 @@ import com.thinktank.utilities.ConfigReader;
 
 public class BaseClass {
 
+	
+	
 	public static WebDriver driver;
 	static ConfigReader configreader = new ConfigReader();
 	public static String url = configreader.getAppUrl();
