@@ -27,6 +27,7 @@ public class ExcelUtilities {
 	static String FILE_PATH = System.getProperty("user.dir")
 			+ "/src/test/resources/TestData/IngredientsAndComorbidities-ScrapperHackathon.xlsx";
 	static final String DIABETES_HYPOTHYROIDISM_HYPERTE = "Diabetes-Hypothyroidism-Hyperte";
+	static final String FoodCategory = "FoodCategory";
 
 	static String FILE_PATH_WRITE = System.getProperty("user.dir")
 			+ "/src/test/resources/TestData/Recipe-filters-ScrapperHackathon.xlsx";
@@ -238,22 +239,30 @@ public class ExcelUtilities {
 
 	public static Map<String, List<String>> readElimatelist() {
 		int eliminateColumn = 0;
-		Map<String, List<String>> columndata = readColumnData(eliminateColumn);
+		Map<String, List<String>> columndata = readColumnData(eliminateColumn, DIABETES_HYPOTHYROIDISM_HYPERTE);
 		return columndata;
 
 	}
 
 	public static Map<String, List<String>> readAddlist() {
-		Map<String, List<String>> columndata = readColumnData(1);
+		Map<String, List<String>> columndata = readColumnData(1, DIABETES_HYPOTHYROIDISM_HYPERTE);
+		return columndata;
+
+	}
+	
+	
+	public static Map<String,List<String>> readCategorylist(){
+		int eliminateColumn = 0;
+		Map<String, List<String>> columndata = readColumnData(eliminateColumn, FoodCategory);
 		return columndata;
 
 	}
 
-	private static Map<String, List<String>> readColumnData(int eliminateColumn) {
+	private static Map<String, List<String>> readColumnData(int eliminateColumn, String sheetName) {
 		Map<String, List<String>> columndata = new HashMap<String, List<String>>();
 		try {
 			XSSFWorkbook workbook = readExcel(FILE_PATH);
-			XSSFSheet sheet = workbook.getSheet(DIABETES_HYPOTHYROIDISM_HYPERTE);
+			XSSFSheet sheet = workbook.getSheet(sheetName);
 
 			Row row = sheet.getRow(0);
 			Iterator<Cell> cellIterator = row.cellIterator();

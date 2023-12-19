@@ -1,6 +1,7 @@
-package com.thinktank.utilities;
+package com.thinktank.core;
 
 import java.io.IOException;
+
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -17,28 +18,30 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 
+import com.thinktank.ingredientsandcomorbidities.FoodCategory;
 import com.thinktank.ingredientsandcomorbidities.IngredientsAndComorbidityInfo;
-public class Pagination_ByClick_from_AtoZ {
-	public static void main(String[] args) throws InterruptedException, IOException {
+import com.thinktank.utilities.ExcelUtilities;
+import com.thinktank.utilities.Filter;
+import com.thinktank.utilities.RecipeId;
 
-		WebDriver driver;
 
-		driver = new ChromeDriver();
-		driver.get("https://www.tarladalal.com/");
-		driver.manage().window().maximize();
-		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
-		driver.manage().deleteAllCookies();
+public class MainScrapper {
+
+	public static void scrapingrecipes(WebDriver driver) {
 
 		driver.findElement(By.xpath("//a[@title='Recipea A to Z']")).click();
 
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		js.executeScript("window.scrollBy(0, 700)");
 
-		//List<String> allRecipeNames = new ArrayList<>();
-		//List<String> allRecipeIds = new ArrayList<>();
+		// List<String> allRecipeNames = new ArrayList<>();
+		// List<String> allRecipeIds = new ArrayList<>();
 
-	for (char k = 'A'; k <= 'Z'; k++) {
+		for (char k = 'A'; k <= 'Z'; k++) {
 			int next_page = 1;
 			String paginationSelector = "https://www.tarladalal.com/RecipeAtoZ.aspx?beginswith=" + k + "&pageindex="
 					+ next_page;
@@ -56,7 +59,7 @@ public class Pagination_ByClick_from_AtoZ {
 			String pagenation_last_page_XX = element_1_XX.getText();
 			int last_page_number = Integer.parseInt(pagenation_last_page_XX);
 			System.out.println("Page Data: " + "for alphabet " + k + " " + pagenation_last_page_XX);
-			
+
 			for (int j = 0; j <= last_page_number - 1; j++) {
 				paginationSelector = "https://www.tarladalal.com/RecipeAtoZ.aspx?beginswith=" + k + "&pageindex="
 						+ next_page;
@@ -69,104 +72,145 @@ public class Pagination_ByClick_from_AtoZ {
 				System.out.println("Last Page: " + pagenation_last_page);
 
 				List<WebElement> recipeNames = driver.findElements(By.xpath("//div//span[@class='rcc_recipename']"));
-			//	List<WebElement> recipeId = driver.findElements(By.xpath("//div//span[contains(text(),'Recipe#')]"));
+				// List<WebElement> recipeId =
+				// driver.findElements(By.xpath("//div//span[contains(text(),'Recipe#')]"));
 
 				for (int i = 0; i < recipeNames.size(); i++) {
 					recipeNames = driver.findElements(By.xpath("//div//span[@class='rcc_recipename']"));
 					WebElement element = recipeNames.get(i);
-				
-                    String catchUrl=driver.getCurrentUrl();
+
+					String catchUrl = driver.getCurrentUrl();
 					element.click();
-					
+
 					js.executeScript("window.scrollBy(0, 700)");
 					String currentUrl = driver.getCurrentUrl();
 					IngredientsAndComorbidityInfo.init();
 					Map<String, List<String>> elimatelist = IngredientsAndComorbidityInfo
 							.getMorbidityVsElimateIngridientlistInfo();
 
-					Document doc = Jsoup.connect(currentUrl).get();
-					List<String> ingredidentList = new ArrayList<>();
-					exactIngredients(doc, ingredidentList);
-					List<String> targettedMorbids = compareIngredientsWithMorbidExcludedList(elimatelist,
-							ingredidentList);
-					LinkedList<String> output = getOutputFromRecipe(driver, doc, targettedMorbids, ingredidentList);
-					ExcelUtilities.writeOutput(output);
-		
-					driver.navigate().to(catchUrl);
-					//driver.navigate().back();
+					Document doc;
+					try {
+						doc = Jsoup.connect(currentUrl).get();
 
-				}}}
-			
-		
+						List<String> ingredidentList = exactIngredients(doc);
+						List<String> targettedMorbids = compareIngredientsWithMorbidExcludedList(elimatelist,
+								ingredidentList);
 
-		driver.quit();
+						LinkedList<String> output = getOutputFromRecipe(driver, doc, targettedMorbids, ingredidentList);
+						ExcelUtilities.writeOutput(output);
+
+						driver.navigate().to(catchUrl);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					// driver.navigate().back();
+				}
+
+			}
+		}
 	}
 
 //**********************************************************************************************************//	
-	
-	
+
 	private static LinkedList<String> getOutputFromRecipe(WebDriver driver, Document doc, List<String> targettedMorbids,
 			List<String> ingredidentList) {
 		LinkedList<String> output = new LinkedList<>();
+		Map<String, List<String>> categoryinfo = IngredientsAndComorbidityInfo.getCategoryVsElimateIngridientlistInfo();
+
 		try {
-		
 
-		//String url = "https://www.tarladalal.com/desert-pizza-with-green-and-gold-kiwifruits-35156r";
-		String url = driver.getCurrentUrl();
-		System.out.println("id:" + RecipeId.getRecipeID(url));
-		output.add(RecipeId.getRecipeID(url));
+			// String url =
+			// "https://www.tarladalal.com/desert-pizza-with-green-and-gold-kiwifruits-35156r";
+			String url = driver.getCurrentUrl();
+			System.out.println("id:" + RecipeId.getRecipeID(url));
+			output.add(RecipeId.getRecipeID(url));
 
-		Element name = doc.getElementById("ctl00_cntrightpanel_lblrecipeNameH2");
-		output.add(name.text());
-		System.out.println(name.text());
+			Element name = doc.getElementById("ctl00_cntrightpanel_lblrecipeNameH2");
+			output.add(name.text());
+			System.out.println(name.text());
 
-		Elements category = doc.select("a[itemprop=recipeCategory]");
-		if (!category.isEmpty()) {
-			Element aElement = category.first();
-			output.add(aElement.text());
-			System.out.println("Found <a> element with name: " + aElement.text());
-		} else {
-			System.out.println("No <a> element with name found under the <span> with href");
-		}
+			Elements Recipecategory = doc.select("a[itemprop=recipeCategory]");
+			if (!Recipecategory.isEmpty()) {
+				Element aElement = Recipecategory.first();
+				output.add(aElement.text());
+				System.out.println("Found <a> element with name: " + aElement.text());
+			} else {
+				System.out.println("No <a> element with name found under the <span> with href");
+			}
 
-		// System.out.println(category.text());
-		output.add("veg");
-		System.out.println("veg");
-		String result = String.join(", ", ingredidentList);
-		output.add(result);
-	
-		Element preptime = doc.selectFirst("time[itemprop=prepTime]");
-		System.out.println(preptime.text());
-		output.add(preptime.text());
-		
-		
-		
-		Element cookTime = doc.selectFirst("time[itemprop=cookTime]");
-		output.add(cookTime.text());
-		System.out.println(cookTime.text());
+			// System.out.println(category.text());
+			List<String> foodCategory = FoodCategory.categorizeTheRecipe(categoryinfo, ingredidentList);
 
-		Elements method = doc.select("ol[itemprop=recipeInstructions]");
-		List<String> recipeInstructions = new ArrayList<>();
+			List<String> foodCategoryList = new ArrayList<>();
+			for (String e : foodCategory) {
+				foodCategoryList.add(e);
+			}
 
-		for (Element e : method) {
-			recipeInstructions.add(e.text());
-		}
+			output.add(foodCategoryList.toString());
 
-		output.add(recipeInstructions.toString());
+			System.out.println("foodCategory: " + foodCategory);
+			// String foodCategory = compareIngredientsWithMorbidExcludedList(categoryinfo,
+			// ingredidentList);
 
-		Element nutrient = doc.getElementById("recipe_nutrients");
-		if (nutrient != null) {
+			// output.add(foodCategory);
+			// System.out.println("veg");
+			String result = String.join(", ", ingredidentList);
+			output.add(result);
 
-			output.add(nutrient.text());
-			System.out.println("Found <a> element with name: " + nutrient.text());
-		} else {
-			output.add("Not found");
-			System.out.println("nutrient null");
-		}
-		// output.add(nutrient.text());
-		output.add(targettedMorbids.toString());
-		output.add(url);}
-		catch(Exception e) {
+			Element preptime = doc.selectFirst("time[itemprop=prepTime]");
+			System.out.println(preptime.text());
+			output.add(preptime.text());
+
+			Element cookTime = doc.selectFirst("time[itemprop=cookTime]");
+			output.add(cookTime.text());
+			System.out.println(cookTime.text());
+
+			Elements method = doc.select("ol[itemprop=recipeInstructions]");
+			List<String> recipeInstructions = new ArrayList<>();
+
+			for (Element e : method) {
+				recipeInstructions.add(e.text());
+			}
+
+			output.add(recipeInstructions.toString());
+
+			List<String> nutrientValues = new ArrayList<>();
+			Element table = doc.select("table#rcpnutrients").first();
+			if (table != null) {
+				Elements rows = table.select("tr"); // Select all rows within the table
+
+				// Iterate through rows and process cells
+				for (Element row : rows) {
+					Elements cells = row.select("td"); // Select cells within each row
+					for (Element cell : cells) {
+						// System.out.println("Cell text: " + cell.text()); // Print cell text
+						nutrientValues.add(cell.text());
+					}
+				}
+			}
+			// Element nutrient = doc.getElementById("recipe_nutrients");
+//		if (nutrient != null) {
+//
+//			output.add(nutrient.text());
+//			System.out.println("Found <a> element with name: " + nutrient.text());
+//		} else {
+//			output.add("Not found");
+//			System.out.println("nutrient null");
+//		}
+
+			if (nutrientValues.isEmpty()) {
+				// String is empty
+				output.add("NA");
+
+			} else {
+				// String is not empty
+				output.add(nutrientValues.toString());
+			}
+
+			output.add(targettedMorbids.toString());
+			output.add(url);
+		} catch (Exception e) {
 			System.out.println(e);
 		}
 		System.out.println(output);
@@ -187,7 +231,8 @@ public class Pagination_ByClick_from_AtoZ {
 		return targettedMorbids;
 	}
 
-	private static void exactIngredients(Document doc, List<String> ingredidentList) {
+	private static List<String> exactIngredients(Document doc) {
+		List<String> ingredidentList = new ArrayList<>();
 		Elements recipeIngredient = doc.select("span[itemprop=recipeIngredient]");
 		for (Element e : recipeIngredient) {
 			Elements ingredients = e.select("a");
@@ -196,6 +241,7 @@ public class Pagination_ByClick_from_AtoZ {
 				ingredidentList.add(newIngredient);
 			}
 		}
+		return ingredidentList;
 	}
 
 }

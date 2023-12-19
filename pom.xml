@@ -3,6 +3,17 @@
   <groupId>ThinkTank</groupId>
   <artifactId>RecipeScraping_team9_ThinkTank</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  
+  <properties>
+		<cucumber.version>7.2.3</cucumber.version>
+		<selenium.version>4.9.0</selenium.version>
+		<webdrivermanager.version>5.4.1</webdrivermanager.version>
+		<testng.version>7.7.1</testng.version>
+		<maven.compiler.plugin.version>3.10.1</maven.compiler.plugin.version>
+		<maven.surefire.plugin.version>3.0.0-M7</maven.surefire.plugin.version>
+		<maven.compiler.source.version>11</maven.compiler.source.version>
+		<maven.compiler.target.version>11</maven.compiler.target.version>
+	</properties>
   <dependencies>
   
   <!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java -->
@@ -100,11 +111,30 @@
 		</dependency>
   
   </dependencies>
-  
-  
-  
-  
-  
+  <build>
+    <plugins>
+    <plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>${maven.compiler.plugin.version}</version>
+					<configuration>
+						<source>${maven.compiler.source.version}</source>
+						<target>${maven.compiler.target.version}</target>
+					</configuration>
+				</plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>${maven.surefire.plugin.version}</version>
+            <configuration>
+                <suiteXmlFiles>
+                    <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
+                </suiteXmlFiles>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+
   
   
   
